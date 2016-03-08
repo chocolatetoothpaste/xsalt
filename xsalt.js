@@ -9,15 +9,18 @@ function XSalt() {
 XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
 	var handler = {
 		set: (obj, prop, val) => {
-			if( typeof val === 'object' || Array.isArray(val) ) {
-				for( var i in val ) {
-					if( typeof val[i] === 'object' || Array.isArray(val[i]) )
-						val[i] = new Proxy(val[i], handler);
-				}
-				val = new Proxy(val, handler);
-			}
+			obj[prop] = (function watch(v) {
+				if( typeof val === 'object' || Array.isArray(val) ) {
+					for( let i in v ) {
+						if( typeof v[i] === 'object' || Array.isArray(v[i]) )
+							v[i] = watch(new Proxy(v[i], handler));
+					}
 
-			obj[prop] = val;
+					v = new Proxy(v, handler);
+				}
+
+				return v;
+			})(val);
 
 			this.compile(document.querySelectorAll(`[xs-ctrl=${ctrl}]`));
 		},
@@ -81,30 +84,25 @@ each: function parse_each( tmpl, data ) {
 	var frag = '',
 		re = /\$\{([\w]+)\}/g,
 		v,
-		args = [];
+		args = [],
+		attr_list = [
+			'[xs-if]',
+			'[xs-class]'
+		].join(', ');
 
 	while( ( v = re.exec(tmpl.outerHTML) ) !== null ) {
 		args.push(v[1]);
 	}
 
-	var len = args.length;
-
-	for( var d in data ) {
+	for( let d in data ) {
 		var clone = tmpl.cloneNode(true);
-		var list = [
-			'[xs-if]',
-			'[xs-class]'
-		];
 
 		if( clone.hasAttribute('xs-class') ) {
 			var f = clone.getAttribute('xs-class');
-			var cl = this.parse.xscall.call(this, f, data[d])
-			// console.log(cl)
-			if( cl.length > 0 )
-				clone.className += cl.join(' ');
+			clone.className += this.parse.xscall.call(this, f, data[d])
 		}
 
-		[].forEach.call(clone.querySelectorAll(list.join(',')), (n) => {
+		[].forEach.call(clone.querySelectorAll(attr_list), (n) => {
 			if( n.hasAttribute('xs-if')
 				&& ! this.parse.xscall.call(this, n.getAttribute('xs-if'), data[d]) ) {
 					n.parentNode.removeChild(n);
@@ -112,9 +110,7 @@ each: function parse_each( tmpl, data ) {
 
 			if( n.hasAttribute('xs-class') ) {
 				var f = n.getAttribute('xs-class');
-				var cl = this.parse.xscall.call(this, f, data[d])
-				if( cl.length > 0 )
-					n.className += cl.join(' ');
+				n.className += this.parse.xscall.call(this, f, data[d])
 			}
 		});
 
@@ -127,7 +123,7 @@ each: function parse_each( tmpl, data ) {
 		var val = [];
 
 		// convert var to let when browsers catch up
-		for( var i = 0; i < len; ++i ) {
+		for( let i = 0, len = args.length; i < len; ++i ) {
 			val.push(data[d][args[i]] || '');
 		}
 

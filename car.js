@@ -7,7 +7,7 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 
 	$ctrl.styles = function(state, $data) {
 		// console.log($data.state, state)
-		return ( $data.state === state ? ['beehive', 'cheddar'] : [] );
+		return ( $data.state === state ? 'beehive cheddar' : '' );
 	};
 
 	/*//
