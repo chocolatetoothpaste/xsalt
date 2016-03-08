@@ -1,7 +1,13 @@
 var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 
-	$ctrl.state = function(st) {
-		return st == 'AK';
+	$ctrl.state = function(state, $data) {
+		// console.log($data)
+		return $data.state === state;
+	};
+
+	$ctrl.styles = function(state, $data) {
+		// console.log($data.state, state)
+		return ( $data.state === state ? ['beehive', 'cheddar'] : [] );
 	};
 
 	/*//
@@ -22,7 +28,7 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 
 	setTimeout( () => {
 		///
-		$ctrl.cars[2].state = 'AK';
+		$ctrl.cars[2] = {_id: 2, state: 'AK', plate: '999 TLF'};
 		// delete $ctrl.cars[2];
 		/*/
 		$ctrl.cars[2] = {

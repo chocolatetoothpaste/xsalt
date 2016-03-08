@@ -69,61 +69,74 @@ XSalt.prototype.compile = function compile(nodes) {
 
 
 XSalt.prototype.parse = {
-	xsif: function xsif(stmt, data) {
-		return this.controller.CarsCtrl[stmt.split('(')[0]].call(null, data.state)
 
-		// this parser needs major beefing up
+xscall: function xscall(stmt, data) {
+	stmt = stmt.replace(/[\'\"]|\)$/g, '').split('(');
+	stmt.push(data);
 
-		// var fn = Function.apply(null, Object.keys(data).concat('return ' + stmt));
-		// var val = [];
-		//
-		// for( var d in data ) {
-		// 	val.push(data[d]);
-		// }
-		//
-		// return fn.apply(null, val);
-	},
-	each: function parse_each( tmpl, data ) {
-		var frag = '',
-			re = /\$\{([\w]+)\}/g,
-			v,
-			args = [];
+	return this.controller.CarsCtrl[stmt.shift()].apply( null, stmt );
+},
 
-		while( ( v = re.exec(tmpl.outerHTML) ) !== null ) {
-			args.push(v[1]);
-		}
+each: function parse_each( tmpl, data ) {
+	var frag = '',
+		re = /\$\{([\w]+)\}/g,
+		v,
+		args = [];
 
-		var len = args.length;
-
-		for( var d in data ) {
-			var clone = tmpl.cloneNode(true);
-
-			[].forEach.call(clone.querySelectorAll('[xs-if]'), (n) => {
-				var f = n.getAttribute('xs-if');
-
-				if( ! this.parse.xsif.call(this, f, data[d]) ) {
-					n.parentNode.removeChild(n);
-				}
-			});
-
-			var html = clone.outerHTML;
-
-			if( typeof this.fn[html] === 'undefined' ) {
-				this.fn[html] = Function.apply(null, args.concat('return `' + html + '`;'));
-			}
-
-			var val = [];
-
-			// convert var to let when browsers catch up
-			for( var i = 0; i < len; ++i ) {
-				val.push(data[d][args[i]] || '');
-			}
-
-			frag += this.fn[html].apply(null, val);
-		}
-
-		return frag;
+	while( ( v = re.exec(tmpl.outerHTML) ) !== null ) {
+		args.push(v[1]);
 	}
+
+	var len = args.length;
+
+	for( var d in data ) {
+		var clone = tmpl.cloneNode(true);
+		var list = [
+			'[xs-if]',
+			'[xs-class]'
+		];
+
+		if( clone.hasAttribute('xs-class') ) {
+			var f = clone.getAttribute('xs-class');
+			var cl = this.parse.xscall.call(this, f, data[d])
+			// console.log(cl)
+			if( cl.length > 0 )
+				clone.className += cl.join(' ');
+		}
+
+		[].forEach.call(clone.querySelectorAll(list.join(',')), (n) => {
+			if( n.hasAttribute('xs-if')
+				&& ! this.parse.xscall.call(this, n.getAttribute('xs-if'), data[d]) ) {
+					n.parentNode.removeChild(n);
+			}
+
+			if( n.hasAttribute('xs-class') ) {
+				var f = n.getAttribute('xs-class');
+				var cl = this.parse.xscall.call(this, f, data[d])
+				if( cl.length > 0 )
+					n.className += cl.join(' ');
+			}
+		});
+
+		var html = clone.outerHTML;
+
+		if( typeof this.fn[html] === 'undefined' ) {
+			this.fn[html] = Function.apply(null, args.concat('return `' + html + '`;'));
+		}
+
+		var val = [];
+
+		// convert var to let when browsers catch up
+		for( var i = 0; i < len; ++i ) {
+			val.push(data[d][args[i]] || '');
+		}
+
+		frag += this.fn[html].apply(null, val);
+	}
+
+	return frag;
+}
+
 };
 
 

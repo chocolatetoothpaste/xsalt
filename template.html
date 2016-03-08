@@ -1,16 +1,30 @@
 <html>
 <head>
 	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+	<style>
+		body {
+			font-size: 30px;
+		}
+		.beehive {
+			background: #ffe;
+			padding: 0 20px;
+		}
+
+		.cheddar {
+			color: #ffe135;
+			font-weight: bold;
+		}
+	</style>
 </head>
 <body>
 
 <ul xs-ctrl="CarsCtrl">
 	<template>
-		<li xs-each="cars" id="car_${_id}">
+		<li xs-each="cars" id="car_${_id}" xs-class="styles('UT')">
 			<span>${state}</span>
 			<span>${plate}</span>
 			<span>${description}</span>
-			<span xs-if="state()">
+			<span xs-if="state('AK')">
 				The last frontier
 			</span>
 		</li>
