@@ -1,0 +1,22 @@
+{
+  "name": "xsalt",
+  "main": "xsalt.js",
+  "version": "0.2.0",
+  "homepage": "https://github.com/chocolatetoothpaste/xsalt",
+  "authors": [
+    "Ross Paskett <ross@paskett.me>"
+  ],
+  "description": "A different kind of template engine",
+  "keywords": [
+    "template",
+    "dom",
+    "json"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

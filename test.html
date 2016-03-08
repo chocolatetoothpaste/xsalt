@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<script src="/xsalt/xsalt.js"></script>
+<script src="/xsalt/handlebars-v2.0.0.js"></script>
+<script src="/xsalt/test-data.js"></script>
+<script>
+var timer = function(name) {
+    var start = new Date();
+    return {
+        stop: function() {
+            var end  = new Date();
+            var time = end.getTime() - start.getTime();
+            console.log('Timer:', name, 'finished in', time, 'ms');
+        }
+    }
+};
+</script>
+</head>
+
+<body>
+<pre>
+<div id="xsalt"></div>
+<div id="handlebars"></div>
+</pre>
+<script>
+///
+var x = timer('xsalt');
+var out = xsalt.parse.each.call(xsalt, '<option>${name}</option>', data);
+x.stop();
+
+console.log(out.length);
+
+document.getElementById("xsalt").innerHTML = `<select class="something">${out}</select>`;
+
+
+var h = timer('handlebars');
+var asdf = Handlebars.compile('{{#each data}}<option>{{name}}</option>{{/each}}');
+var hout = asdf({ data: data });
+h.stop();
+
+document.getElementById("handlebars").innerHTML = `<select class="something">${hout}</select>`;
+
+console.log(hout.length);
+//*/
+</script>
+
+
+<script>
+/*//
+"use strict";
+function makeid(len) {
+	len = len || 8;
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < len; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
+var d = document.getElementById('xsalt');
+
+var str = '';
+
+str += "var data = [\n";
+for( let i = 0; i < 10000; ++i ) {
+	str += '\t{ name: "' + makeid() + '"},\n';
+}
+str += "];";
+
+d.innerHTML = str;
+//*/
+</script>
+</body>
+</html>

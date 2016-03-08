@@ -1,0 +1,15 @@
+{
+  "name": "xsalt",
+  "version": "0.2.0",
+  "description": "A different kind of template engine",
+  "main": "xsalt.js",
+  "author": "Ross Paskett",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chocolatetoothpaste/xsalt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chocolatetoothpaste/xsalt/issues"
+  },
+  "homepage": "https://github.com/chocolatetoothpaste/xsalt"
+}
