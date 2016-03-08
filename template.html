@@ -1,0 +1,23 @@
+<html>
+<head>
+	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+
+<ul xs-ctrl="CarsCtrl">
+	<template>
+		<li xs-each="cars" id="car_${_id}">
+			<span>${state}</span>
+			<span>${plate}</span>
+			<span>${description}</span>
+			<span xs-if="state()">
+				The last frontier
+			</span>
+		</li>
+	</template>
+</ul>
+<!-- <script src="/assets/js/xsalt.js" type="application/javascript;version=1.7"></script> -->
+<script src="xsalt.js"></script>
+<script src="car.js"></script>
+</body>
+</html>
