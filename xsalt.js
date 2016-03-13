@@ -7,6 +7,7 @@ function XSalt() {
 }
 
 XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
+	var xsctrl = `[xs-ctrl=${ctrl}]`;
 	var handler = {
 		set: (obj, prop, val) => {
 			obj[prop] = (function watch(v) {
@@ -22,12 +23,12 @@ XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
 				return v;
 			})(val);
 
-			this.compile(document.querySelectorAll(`[xs-ctrl=${ctrl}]`));
+			this.compile(document.querySelectorAll(xsctrl));
 		},
 		deleteProperty: (obj, prop) => {
 			delete obj[prop];
 
-			this.compile(document.querySelectorAll(`[xs-ctrl=${ctrl}]`));
+			this.compile(document.querySelectorAll(xsctrl));
 		}
 	};
 
@@ -81,7 +82,7 @@ XSalt.prototype.compile = function compile(nodes) {
 
 	document.addEventListener('click', (e) => {
 		e.stopImmediatePropagation();
-		e.target.getAttribute('xs-click')
+
 		if( e.target.getAttribute('xs-click') ) {
 			var cb = e.target.getAttribute('xs-click')
 				.replace(/[\'\"]|\)$/g, '')
