@@ -48,23 +48,46 @@ XSalt.prototype.compile = function compile(nodes) {
 		// clone the template contents
 		var content = document.importNode(node.childNodes[1].content, true);
 
+		var sel = [
+			'[xs-click]',
+			'[xs-submit]',
+			'[xs-change]',
+			'[xs-keyup]',
+			'[xs-each]'
+		].join(', ');
+
 		// grab all the nodes that "do something"
-		var each = content.querySelectorAll('[xs-each]');
+		var children = content.querySelectorAll(sel);
 
-		[].forEach.call(each, (n) => {
-			var data = this.controller[ctrl][n.getAttribute('xs-each')];
+		[].forEach.call(children, (child) => {
+			if( child.hasAttribute('xs-each') ) {
+				var data = this.controller[ctrl][child.getAttribute('xs-each')];
 
-			if( typeof data !== 'undefined' ) {
-				var frag = ' ';
+				if( typeof data !== 'undefined' ) {
+					var frag = ' ';
 
-				[].forEach.call(node.children, (child) => {
-					if( child.tagName === 'TEMPLATE' )
-						frag += child.outerHTML;
-				});
+					[].forEach.call(node.children, (tmpl) => {
+						if( tmpl.tagName === 'TEMPLATE' )
+							frag += tmpl.outerHTML;
+					});
 
-				frag += this.parse.each.call(this, n, data);
+					frag += this.parse.each.call(this, child, data);
 
-				node.innerHTML = frag;
+					node.innerHTML = frag;
+				}
+			}
+				//
+				// || child.hasAttribute('xs-submit')
+				// || child.hasAttribute('xs-change')
+				// || child.hasAttribute('xs-keyup')
+			if( child.hasAttribute('xs-click') ) {
+				var attr = child.getAttribute('xs-click');
+				var cb = child.getAttribute('xs-click').replace(/[\'\"]|\)$/g, '').split('(');
+				document.addEventListener('click', (e) => {
+					// console.log(e.target.getAttribute('xs-click'), attr)
+					if( e.target.getAttribute('xs-click') === attr )
+						this.controller.CarsCtrl[cb.shift()].call(null)
+				}, false);
 			}
 		});
 	});
