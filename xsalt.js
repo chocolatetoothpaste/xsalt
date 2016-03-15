@@ -8,12 +8,14 @@ function XSalt() {
 
 XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
 	var xsctrl = `[xs-ctrl=${ctrl}]`;
+
 	var handler = {
 		set: (obj, prop, val) => {
 			obj[prop] = (function watch(v) {
-				if( typeof val === 'object' || val instanceof Array ) {
+				var t = typeof val;
+				if( Object(val) === val || val instanceof Array ) {
 					for( let i in v ) {
-						if( typeof v[i] === 'object' || v[i] instanceof Array )
+						if( Object(v[i]) === v[i] || v[i] instanceof Array )
 							v[i] = watch(new Proxy(v[i], handler));
 					}
 
@@ -23,12 +25,14 @@ XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
 				return v;
 			})(val);
 
-			this.compile(document.querySelectorAll(xsctrl));
+			if( typeof val !== 'function')
+				this.compile(document.querySelectorAll(xsctrl));
 		},
 		deleteProperty: (obj, prop) => {
 			delete obj[prop];
 
-			this.compile(document.querySelectorAll(xsctrl));
+			if( typeof val !== 'function')
+				this.compile(document.querySelectorAll(xsctrl));
 		}
 	};
 

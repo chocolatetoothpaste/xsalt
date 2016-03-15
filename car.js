@@ -1,8 +1,11 @@
 var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
+
 	$ctrl.state = function(state, $data) {
 		// console.log($data)
 		return $data.state === state;
 	};
+
+	$ctrl.boogers = ['asdf','ghjkl','qwerty'];
 
 	$ctrl.styles = function(state, $data) {
 		// console.log($data.state, state)
