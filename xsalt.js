@@ -7,12 +7,13 @@ function XSalt() {
 }
 
 XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
+	var xsctrl = `[xs-ctrl=${ctrl}]`;
 	var handler = {
 		set: (obj, prop, val) => {
 			obj[prop] = (function watch(v) {
-				if( typeof val === 'object' || Array.isArray(val) ) {
+				if( typeof val === 'object' || val instanceof Array ) {
 					for( let i in v ) {
-						if( typeof v[i] === 'object' || Array.isArray(v[i]) )
+						if( typeof v[i] === 'object' || v[i] instanceof Array )
 							v[i] = watch(new Proxy(v[i], handler));
 					}
 
@@ -22,12 +23,12 @@ XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
 				return v;
 			})(val);
 
-			this.compile(document.querySelectorAll(`[xs-ctrl=${ctrl}]`));
+			this.compile(document.querySelectorAll(xsctrl));
 		},
 		deleteProperty: (obj, prop) => {
 			delete obj[prop];
 
-			this.compile(document.querySelectorAll(`[xs-ctrl=${ctrl}]`));
+			this.compile(document.querySelectorAll(xsctrl));
 		}
 	};
 
@@ -91,6 +92,18 @@ XSalt.prototype.compile = function compile(nodes) {
 			}
 		});
 	});
+
+	document.addEventListener('click', (e) => {
+		e.stopImmediatePropagation();
+
+		if( e.target.getAttribute('xs-click') ) {
+			var cb = e.target.getAttribute('xs-click')
+				.replace(/[\'\"]|\)$/g, '')
+				.split('(')
+
+			this.controller.CarsCtrl[cb.shift()].call(null)
+		}
+	}, false);
 };
 
 
