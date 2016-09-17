@@ -7,13 +7,12 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 
 	$ctrl.boogers = ['asdf','ghjkl','qwerty'];
 
-	$ctrl.styles = function(state, $data) {
-		// console.log($data.state, state)
-		return ( $data.state === state ? 'beehive cheddar' : '' );
+	$ctrl.styles = function($data) {
+		return ( $data.state === 'UT' ? 'beehive cheddar' : '' );
 	};
 
-	$ctrl.save = function() {
-		console.log('bango!');
+	$ctrl.save = function(id, ctrl) {
+		console.log('bango!', id, ctrl);
 	};
 
 	/*//
@@ -25,7 +24,7 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 	};
 	/*/
 	$ctrl.cars = [
-		{ _id: 1, state: 'UT', plate: '234 ASD' },
+		{ _id: 1, state: 'UT', plate: '234 ASD', description: 'Heber Prease' },
 		{ _id: 2, state: 'MT', plate: '234 MDT' },
 		{ _id: 3, state: 'WA', plate: '234 WER' }
 		// state: function() {}
@@ -34,17 +33,14 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 
 	setTimeout( () => {
 		///
-		$ctrl.cars[2] = {_id: 2, state: 'AK', plate: '999 TLF'};
+		$ctrl.cars[2] = {_id: 3, state: 'AK', plate: '999 TLF'};
 		// delete $ctrl.cars[2];
 		/*/
-		$ctrl.cars[2] = {
-			state: 'AK',
-			plate: 'AKT 999',
-			id: 23
-		};
+		$ctrl.cars[2].state = 'AK';
+		// $ctrl.cars[2].plate = 'AKT 999';
 		//*/
 
-		console.log('update', $ctrl.cars)
+		// console.log('update', $ctrl.cars)
 	}, 5000);
 });
 

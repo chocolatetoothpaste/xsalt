@@ -7,7 +7,7 @@
 		}
 		.beehive {
 			background: #ffe;
-			padding: 0 20px;
+			/*padding: 0 20px;*/
 		}
 
 		.cheddar {
@@ -20,14 +20,14 @@
 
 <ul xs-ctrl="CarsCtrl">
 	<template>
-		<li xs-each="cars" id="car_${_id}" xs-class="styles('UT')">
+		<li xs-each="cars" id="car_${_id}" xs-class="styles(${state})">
 			<span>${state}</span>
 			<span>${plate}</span>
 			<span>${description}</span>
-			<span xs-if="state('AK')">
+			<span xs-if="${state === 'AK'}">
 				The last frontier
 			</span>
-			<button xs-click="save()">Bingo</button>
+			<button xs-click="save(${_id}, 'CarsCtrl')">Bingo</button>
 		</li>
 	</template>
 </ul>

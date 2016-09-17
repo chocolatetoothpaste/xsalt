@@ -4,6 +4,7 @@
 function XSalt() {
 	this.controller = {};
 	this.fn = {};
+	this.ev = {};
 }
 
 XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
@@ -87,37 +88,55 @@ XSalt.prototype.compile = function compile(nodes) {
 				// || child.hasAttribute('xs-keyup')
 			if( child.hasAttribute('xs-click') ) {
 				var attr = child.getAttribute('xs-click');
-				var cb = child.getAttribute('xs-click').replace(/[\'\"]|\)$/g, '').split('(');
-				document.addEventListener('click', (e) => {
-					// console.log(e.target.getAttribute('xs-click'), attr)
-					if( e.target.getAttribute('xs-click') === attr )
-						this.controller.CarsCtrl[cb.shift()].call(null)
-				}, false);
+
+				if( typeof this.ev['click' + attr] === 'undefined' ) {
+					this.ev['click' + attr] = attr;
+
+					var fn = (e) => {
+						var cb = e.target
+							.getAttribute('xs-click')
+							.replace(/[\'\"]|\)$/g, '')
+							.split('(')
+
+						var args = cb[1].split(',').map((v) => {
+							return v.trim();
+						});
+
+						this.controller[ctrl][cb.shift()].apply(null, args);
+					};
+
+					document.removeEventListener('click', fn);
+					document.addEventListener('click', fn);
+				}
 			}
 		});
 	});
-
-	document.addEventListener('click', (e) => {
-		e.stopImmediatePropagation();
-
-		if( e.target.getAttribute('xs-click') ) {
-			var cb = e.target.getAttribute('xs-click')
-				.replace(/[\'\"]|\)$/g, '')
-				.split('(')
-
-			this.controller.CarsCtrl[cb.shift()].call(null)
-		}
-	}, false);
 };
 
 
 XSalt.prototype.parse = {
 
-xscall: function xscall(stmt, data) {
-	stmt = stmt.replace(/[\'\"]|\)$/g, '').split('(');
-	stmt.push(data);
+xscall: function xscall(stmt, args, data) {
+	var ret = false;
 
-	return this.controller.CarsCtrl[stmt.shift()].apply( null, stmt );
+	if( /^\$/.test(stmt) ) {
+		var b = Function.apply(null, args.concat('return `' + stmt + '`;'))
+			.apply(null, args.map( (v) => {
+				return data[v];
+			}));
+
+		ret = ( b === 'true' );
+	}
+
+	else if( /\(.*\)/.test(stmt) ) {
+		stmt = stmt.replace(/[\'\"]|\)$/g, '').split('(');
+		stmt.pop();
+		stmt.push(data);
+
+		ret = this.controller.CarsCtrl[stmt.shift()].apply( null, stmt );
+	}
+
+	return ret;
 },
 
 each: function parse_each( tmpl, data ) {
@@ -139,18 +158,18 @@ each: function parse_each( tmpl, data ) {
 
 		if( clone.hasAttribute('xs-class') ) {
 			var f = clone.getAttribute('xs-class');
-			clone.className += this.parse.xscall.call(this, f, data[d])
+			clone.className += this.parse.xscall.call(this, f, null, data[d])
 		}
 
 		[].forEach.call(clone.querySelectorAll(attr_list), (n) => {
 			if( n.hasAttribute('xs-if')
-				&& ! this.parse.xscall.call(this, n.getAttribute('xs-if'), data[d]) ) {
+				&& ! this.parse.xscall.call(this, n.getAttribute('xs-if'), args, data[d]) ) {
 					n.parentNode.removeChild(n);
 			}
 
 			if( n.hasAttribute('xs-class') ) {
 				var f = n.getAttribute('xs-class');
-				n.className += this.parse.xscall.call(this, f, data[d])
+				n.className += this.parse.xscall.call(this, f, null, data[d])
 			}
 		});
 
