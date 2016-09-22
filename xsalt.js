@@ -60,137 +60,152 @@ XSalt.prototype.compile = function compile(nodes) {
 			'[xs-change]',
 			'[xs-keyup]',
 			'[xs-each]'
-		].join(', ');
+		];
 
 		// grab all the nodes that "do something"
-		var children = content.querySelectorAll(sel);
+		var children = content.querySelectorAll(sel.join(', '));
+
+		var xsattr = ['xs-each', 'xs-click'];
 
 		[].forEach.call(children, (child) => {
-			if( child.hasAttribute('xs-each') ) {
-				var data = this.controller[ctrl][child.getAttribute('xs-each')];
-
-				if( typeof data !== 'undefined' ) {
-					var frag = ' ';
-
-					[].forEach.call(node.children, (tmpl) => {
-						if( tmpl.tagName === 'TEMPLATE' )
-							frag += tmpl.outerHTML;
-					});
-
-					frag += this.parse.each.call(this, child, data);
-
-					node.innerHTML = frag;
+			xsattr.forEach( val => {
+				if( child.hasAttribute(val) ) {
+					this.compilers[val].call(this, node, child, ctrl, child.getAttribute(val));
 				}
-			}
-				//
-				// || child.hasAttribute('xs-submit')
-				// || child.hasAttribute('xs-change')
-				// || child.hasAttribute('xs-keyup')
-			if( child.hasAttribute('xs-click') ) {
-				var attr = child.getAttribute('xs-click');
-
-				if( typeof this.ev['click' + attr] === 'undefined' ) {
-					this.ev['click' + attr] = attr;
-
-					var fn = (e) => {
-						var cb = e.target
-							.getAttribute('xs-click')
-							.replace(/[\'\"]|\)$/g, '')
-							.split('(')
-
-						var args = cb[1].split(',').map((v) => {
-							return v.trim();
-						});
-
-						this.controller[ctrl][cb.shift()].apply(null, args);
-					};
-
-					document.removeEventListener('click', fn);
-					document.addEventListener('click', fn);
-				}
-			}
+			});
 		});
 	});
 };
 
 
+XSalt.prototype.compilers = {
+	'xs-click': function(node, child, ctrl, attr) {
+		// var attr = child.getAttribute('xs-click');
+
+		if( typeof this.ev['click'] === 'undefined' ) {
+			this.ev['click'] = attr;
+
+			var fn = (e) => {
+				if( ! e.target.hasAttribute('xs-click') ) {
+					return false
+				}
+				var cb = e.target
+					.getAttribute('xs-click')
+					.replace(/[\'\"]|\)$/g, '')
+					.split('(')
+
+				var args = cb[1].split(',').map((v) => {
+					return v.trim();
+				});
+
+				this.controller[ctrl][cb.shift()].apply(null, args);
+			};
+
+			document.removeEventListener('click', fn);
+			document.addEventListener('click', fn);
+		}
+	},
+
+	'xs-each': function(node, child, ctrl, attr) {
+		var data = this.controller[ctrl][attr];
+
+		if( typeof data !== 'undefined' ) {
+			var frag = ' ';
+
+			[].forEach.call(node.children, (tmpl) => {
+				if( tmpl.tagName === 'TEMPLATE' )
+					frag += tmpl.outerHTML;
+			});
+
+			frag += this.parse.each.call(this, child, data);
+
+			node.innerHTML = frag;
+		}
+	}
+};
+
 XSalt.prototype.parse = {
+	xscall: function xscall(stmt, args, data) {
+		var ret = false;
 
-xscall: function xscall(stmt, args, data) {
-	var ret = false;
+		if( /^\$/.test(stmt) ) {
+			var b = Function.apply(null, args.concat('return `' + stmt + '`;'))
+				.apply(null, args.map( (v) => {
+					return data[v];
+				}));
 
-	if( /^\$/.test(stmt) ) {
-		var b = Function.apply(null, args.concat('return `' + stmt + '`;'))
-			.apply(null, args.map( (v) => {
-				return data[v];
-			}));
-
-		ret = ( b === 'true' );
-	}
-
-	else if( /\(.*\)/.test(stmt) ) {
-		stmt = stmt.replace(/[\'\"]|\)$/g, '').split('(');
-		stmt.pop();
-		stmt.push(data);
-
-		ret = this.controller.CarsCtrl[stmt.shift()].apply( null, stmt );
-	}
-
-	return ret;
-},
-
-each: function parse_each( tmpl, data ) {
-	var frag = '',
-		re = /\$\{([\w]+)\}/g,
-		v,
-		args = [],
-		attr_list = [
-			'[xs-if]',
-			'[xs-class]'
-		].join(', ');
-
-	while( ( v = re.exec(tmpl.outerHTML) ) !== null ) {
-		args.push(v[1]);
-	}
-
-	for( let d in data ) {
-		var clone = tmpl.cloneNode(true);
-
-		if( clone.hasAttribute('xs-class') ) {
-			var f = clone.getAttribute('xs-class');
-			clone.className += this.parse.xscall.call(this, f, null, data[d])
+			ret = ( b === 'true' );
 		}
 
-		[].forEach.call(clone.querySelectorAll(attr_list), (n) => {
-			if( n.hasAttribute('xs-if')
-				&& ! this.parse.xscall.call(this, n.getAttribute('xs-if'), args, data[d]) ) {
-					n.parentNode.removeChild(n);
+		else if( /\(.*\)/.test(stmt) ) {
+			stmt = stmt.replace(/[\'\"]|\)$/g, '').split('(');
+			stmt.pop();
+			stmt.push(data);
+
+			ret = this.controller.CarsCtrl[stmt.shift()].apply( null, stmt );
+		}
+
+		return ret;
+	},
+
+	each: function parse_each( tmpl, data ) {
+		var frag = '',
+			re = /\$\{([\w]+)\}/g,
+			v,
+			args = [],
+			attr_list = [
+				'[xs-if]',
+				'[xs-class]'
+			].join(', ');
+
+		while( ( v = re.exec(tmpl.outerHTML) ) !== null ) {
+			if( args.indexOf(v[1]) === -1 )
+				args.push(v[1]);
+		}
+
+		var nodes = tmpl.querySelectorAll(attr_list);
+
+		for( let d in data ) {
+			var clone = tmpl.cloneNode(true);
+
+			if( clone.hasAttribute('xs-class') ) {
+				var f = clone.getAttribute('xs-class');
+				clone.className += this.parse.xscall.call(this, f, null, data[d])
 			}
 
-			if( n.hasAttribute('xs-class') ) {
-				var f = n.getAttribute('xs-class');
-				n.className += this.parse.xscall.call(this, f, null, data[d])
+			[].forEach.call(nodes, (n) => {
+				if( n.hasAttribute('xs-if') && ! this.parse.xscall.apply(this, [
+						n.getAttribute('xs-if'), args, data[d]
+					] ) ) {
+						var sel = "[xs-if=\"" + n.getAttribute('xs-if') + "\"]";
+						clone.querySelectorAll(sel).forEach(c => { c.remove() });
+				}
+
+				if( n.hasAttribute('xs-class') ) {
+					n.className += ' ' + this.parse.xscall.apply( this, [
+						n.getAttribute('xs-class'), null, data[d]
+					])
+				}
+			});
+
+			var html = clone.outerHTML;
+
+			if( typeof this.fn[html] === 'undefined' ) {
+				var str = 'return `' + html + '`;';
+				this.fn[html] = Function.apply( null, args.concat(str) );
 			}
-		});
 
-		var html = clone.outerHTML;
+			var val = [];
 
-		if( typeof this.fn[html] === 'undefined' ) {
-			this.fn[html] = Function.apply(null, args.concat('return `' + html + '`;'));
+			for( let i = 0, len = args.length; i < len; ++i ) {
+				val.push(data[d][args[i]] || '');
+			}
+
+			frag += this.fn[html].apply(null, val);
 		}
 
-		var val = [];
-
-		// convert var to let when browsers catch up
-		for( let i = 0, len = args.length; i < len; ++i ) {
-			val.push(data[d][args[i]] || '');
-		}
-
-		frag += this.fn[html].apply(null, val);
+		return frag;
 	}
-
-	return frag;
-}
 
 };
 

@@ -3,7 +3,8 @@
 	<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 	<style>
 		body {
-			font-size: 30px;
+			font-size: 2em;
+			font-family: sans-serif;
 		}
 		.beehive {
 			background: #ffe;
@@ -14,6 +15,15 @@
 			color: #ffe135;
 			font-weight: bold;
 		}
+
+		.tlf {
+			background: #f1f9fd;
+			color: #243;
+		}
+
+		.mountain {
+			border: 2px solid black;
+		}
 	</style>
 </head>
 <body>
@@ -22,12 +32,13 @@
 	<template>
 		<li xs-each="cars" id="car_${_id}" xs-class="styles(${state})">
 			<span>${state}</span>
-			<span>${plate}</span>
+			<span xs-class="smiles(${state})">${plate}</span>
 			<span>${description}</span>
 			<span xs-if="${state === 'AK'}">
 				The last frontier
 			</span>
-			<button xs-click="save(${_id}, 'CarsCtrl')">Bingo</button>
+			<button xs-click="save(${_id})">Save</button>
+			<button xs-click="delete(${_id})">Delete</button>
 		</li>
 	</template>
 </ul>
