@@ -40,7 +40,18 @@ XSalt.prototype.ctrl = function ctrl(ctrl, fn) {
 	// assign the controller
 	this.controller[ctrl] = new Proxy({}, handler);
 
-	fn.call(null, this.controller[ctrl]);
+	if( document.readyState === 'complete' ) {
+		fn.call(null, this.controller[ctrl]);
+	}
+	else {
+		let load = (e) => {
+			e.target.removeEventListener(e.type, load);
+			fn.call(null, this.controller[ctrl]);
+		};
+		
+		window.addEventListener( 'load', load, true );
+	}
+
 
 	return this.controller[ctrl];
 };

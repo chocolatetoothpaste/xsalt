@@ -4,7 +4,7 @@
 <title></title>
 <script src="/xsalt/xsalt.js"></script>
 <script src="/xsalt/handlebars-v2.0.0.js"></script>
-<script src="/xsalt/test-data.js"></script>
+<script src="/xsalt/small-data.js"></script>
 <script>
 var timer = function(name) {
     var start = new Date();
@@ -21,16 +21,25 @@ var timer = function(name) {
 
 <body>
 <pre>
-<div id="xsalt"></div>
+<div id="xsalt">
+</div>
 <div id="handlebars"></div>
 </pre>
 <script>
 ///
 var x = timer('xsalt');
-var out = xsalt.parse.each.call(xsalt, '<option>${name}</option>', data);
+var e = document.createElement('option');
+// e.setAttribute('xs-each', 'data');
+e.innerText = "${name}";
+var out = xsalt.parse.each.call(xsalt, e, data);
+// xsalt.ctrl('test', ($ctrl) => {
+// 	$ctrl.data = data;
+// });
+
 x.stop();
 
 console.log(out.length);
+// console.log(out);
 
 document.getElementById("xsalt").innerHTML = `<select class="something">${out}</select>`;
 
@@ -43,6 +52,7 @@ h.stop();
 document.getElementById("handlebars").innerHTML = `<select class="something">${hout}</select>`;
 
 console.log(hout.length);
+// console.log(hout);
 //*/
 </script>
 

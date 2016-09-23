@@ -3044,7 +3044,6 @@ var __module0__ = (function(__dependency1__, __dependency2__, __dependency3__, _
   var parse = __dependency3__.parse;
   var Compiler = __dependency4__.Compiler;
   var compile = __dependency4__.compile;
-  console.log(__dependency4__)
   var precompile = __dependency4__.precompile;
   var JavaScriptCompiler = __dependency5__;
 

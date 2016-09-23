@@ -11,5 +11,34 @@
   "bugs": {
     "url": "https://github.com/chocolatetoothpaste/xsalt/issues"
   },
-  "homepage": "https://github.com/chocolatetoothpaste/xsalt"
+  "homepage": "https://github.com/chocolatetoothpaste/xsalt",
+    "eslintConfig": {
+	    "parserOptions": {
+	        "ecmaVersion": 6
+	    },
+	    "rules": {
+	        "indent": 0,
+	        "quotes": [
+	            "error",
+	            "single",
+				{
+					"allowTemplateLiterals": true
+				}
+	        ],
+
+	        "linebreak-style": [
+	            2,
+	            "unix"
+	        ],
+	        "semi": [
+	            2,
+	            "always"
+	        ],
+			"no-undef": 0
+	    },
+	    "extends": "eslint:recommended",
+        "env": {
+            "browser": true
+        }
+    }
 }

@@ -32,7 +32,7 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 	$ctrl.cars = {
 		1: { _id: 1, state: 'UT', plate: '234 ASD' },
 		2: { _id: 2, state: 'MT', plate: '234 MDT' },
-		3: { _id: 3, state: 'WA', plate: '234 WER' },
+		3: { _id: 3, state: 'WA', plate: '234 WER' }
 		// state: function() {}
 	};
 	/*/
