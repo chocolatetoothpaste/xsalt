@@ -128,7 +128,7 @@ XSalt.prototype.compilers = {
 					frag += tmpl.outerHTML;
 			});
 
-			frag += this.parse.each.call(this, child, data);
+			frag += this.parse.each.call(this, ctrl, child, data);
 
 			node.innerHTML = frag;
 		}
@@ -136,7 +136,7 @@ XSalt.prototype.compilers = {
 };
 
 XSalt.prototype.parse = {
-	xscall: function xscall(stmt, args, data) {
+	xscall: function xscall( ctrl, stmt, args, data ) {
 		var ret = false;
 
 		if( /^\$/.test(stmt) ) {
@@ -153,13 +153,13 @@ XSalt.prototype.parse = {
 			stmt.pop();
 			stmt.push(data);
 
-			ret = this.controller.CarsCtrl[stmt.shift()].apply( null, stmt );
+			ret = this.controller[ctrl][stmt.shift()].apply( null, stmt );
 		}
 
 		return ret;
 	},
 
-	each: function parse_each( tmpl, data ) {
+	each: function parse_each( ctrl, tmpl, data ) {
 		var frag = '',
 			re = /\$\{([\w]+)\}/g,
 			v,
@@ -181,7 +181,7 @@ XSalt.prototype.parse = {
 
 			if( clone.hasAttribute('xs-class') ) {
 				var f = clone.getAttribute('xs-class');
-				clone.className += this.parse.xscall.call(this, f, null, data[d])
+				clone.className += this.parse.xscall.call(this, ctrl, f, null, data[d])
 			}
 
 			[].forEach.call(nodes, (n) => {
@@ -194,7 +194,7 @@ XSalt.prototype.parse = {
 
 				if( n.hasAttribute('xs-class') ) {
 					n.className += ' ' + this.parse.xscall.apply( this, [
-						n.getAttribute('xs-class'), null, data[d]
+						ctrl, n.getAttribute('xs-class'), null, data[d]
 					])
 				}
 			});
