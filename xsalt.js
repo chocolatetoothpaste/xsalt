@@ -81,7 +81,7 @@ XSalt.prototype.compile = function compile(nodes) {
 		[].forEach.call(children, (child) => {
 			xsattr.forEach( val => {
 				if( child.hasAttribute(val) ) {
-					this.compilers[val].call(this, node, child, ctrl, child.getAttribute(val));
+					this.parse[val].call(this, node, child, ctrl, child.getAttribute(val));
 				}
 			});
 		});
@@ -89,7 +89,7 @@ XSalt.prototype.compile = function compile(nodes) {
 };
 
 
-XSalt.prototype.compilers = {
+XSalt.prototype.parse = {
 	'xs-click': function(node, child, ctrl, attr) {
 		// var attr = child.getAttribute('xs-click');
 
@@ -128,14 +128,14 @@ XSalt.prototype.compilers = {
 					frag += tmpl.outerHTML;
 			});
 
-			frag += this.parse.each.call(this, ctrl, child, data);
+			frag += this.transmogrify.each.call(this, ctrl, child, data);
 
 			node.innerHTML = frag;
 		}
 	}
 };
 
-XSalt.prototype.parse = {
+XSalt.prototype.transmogrify = {
 	xscall: function xscall( ctrl, stmt, args, data ) {
 		var ret = false;
 
@@ -181,19 +181,19 @@ XSalt.prototype.parse = {
 
 			if( clone.hasAttribute('xs-class') ) {
 				var f = clone.getAttribute('xs-class');
-				clone.className += this.parse.xscall.call(this, ctrl, f, null, data[d])
+				clone.className += this.transmogrify.xscall.call(this, ctrl, f, null, data[d])
 			}
 
 			[].forEach.call(nodes, (n) => {
-				if( n.hasAttribute('xs-if') && ! this.parse.xscall.apply(this, [
-						n.getAttribute('xs-if'), args, data[d]
+				if( n.hasAttribute('xs-if') && ! this.transmogrify.xscall.apply(this, [
+						ctrl, n.getAttribute('xs-if'), args, data[d]
 					] ) ) {
 						var sel = "[xs-if=\"" + n.getAttribute('xs-if') + "\"]";
-						clone.querySelectorAll(sel).forEach(c => { c.remove() });
+						clone.querySelectorAll(sel).forEach(c => { c.innerText = '' });
 				}
 
 				if( n.hasAttribute('xs-class') ) {
-					n.className += ' ' + this.parse.xscall.apply( this, [
+					n.className += ' ' + this.transmogrify.xscall.apply( this, [
 						ctrl, n.getAttribute('xs-class'), null, data[d]
 					])
 				}

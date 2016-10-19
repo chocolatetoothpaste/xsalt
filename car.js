@@ -1,11 +1,11 @@
 var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 
-	$ctrl.styles = function($data) {
-		if ( $data.state === 'UT' ) {
+	$ctrl.styles = function(data) {
+		if ( data.state === 'UT' ) {
 			return 'beehive cheddar';
 		}
 
-		else if( $data.state === 'AK' ) {
+		else if( data.state === 'AK' ) {
 			return 'tlf';
 		}
 
@@ -14,8 +14,8 @@ var Cars = xsalt.ctrl('CarsCtrl', ($ctrl) => {
 		}
 	};
 
-	$ctrl.smiles = function($data) {
-		if ( $data.state === 'MT' || $data.state === 'AK' ) {
+	$ctrl.smiles = function(data) {
+		if ( data.state === 'MT' || data.state === 'AK' ) {
 			return 'mountain';
 		}
 
