@@ -1,6 +1,6 @@
 {
   "name": "xsalt",
-  "version": "0.2.0",
+  "version": "0.2.0-alpha",
   "description": "A different kind of template engine",
   "main": "xsalt.js",
   "author": "Ross Paskett",
