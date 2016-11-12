@@ -91,7 +91,6 @@ XSalt.prototype.compile = function compile(nodes) {
 
 XSalt.prototype.parse = {
 	'xs-click': function(node, child, ctrl, attr) {
-		// var attr = child.getAttribute('xs-click');
 
 		if( typeof this.ev['click'] === 'undefined' ) {
 			this.ev['click'] = attr;
@@ -124,7 +123,7 @@ XSalt.prototype.parse = {
 			var frag = ' ';
 
 			[].forEach.call(node.children, (tmpl) => {
-				if( tmpl.tagName === 'TEMPLATE' )
+				if( tmpl.tagName.toLowerCase() === 'template' )
 					frag += tmpl.outerHTML;
 			});
 
@@ -139,10 +138,20 @@ XSalt.prototype.transmogrify = {
 	xscall: function xscall( ctrl, stmt, args, data ) {
 		var ret = false;
 
+		// var xstag = function xstag(strings, ...values) {
+		// 	console.log(strings[1], values[1]);
+		// };
+
+		// if( args !== null ) {
+		// 	args.push('xstag');
+		// }
+
 		if( /^\$/.test(stmt) ) {
+			// var b = Function.apply(null, args.concat('return xstag`' + stmt + '`;'))
 			var b = Function.apply(null, args.concat('return `' + stmt + '`;'))
 				.apply(null, args.map( (v) => {
 					return data[v];
+					// return ( v === 'xstag' ? xstag : data[v] );
 				}));
 
 			ret = ( b === 'true' );
