@@ -97,12 +97,12 @@ XSalt.prototype.parse = {
 
 			var fn = (e) => {
 				if( ! e.target.hasAttribute('xs-click') ) {
-					return false
+					return false;
 				}
 				var cb = e.target
 					.getAttribute('xs-click')
-					.replace(/[\'\"]|\)$/g, '')
-					.split('(')
+					.replace(/['"]|\)$/g, '')
+					.split('(');
 
 				var args = cb[1].split(',').map((v) => {
 					return v.trim();
